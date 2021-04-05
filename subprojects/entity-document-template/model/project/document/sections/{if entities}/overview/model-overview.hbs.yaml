@@ -1,0 +1,31 @@
+_title: &title
+  en: |
+    Model overview
+  ja: |
+    モデル概要
+  zh: |
+    模式概述
+
+_content: &content
+  en: |
+    The following diagram explains the entities included in this module and the relationship
+    between them.
+    ![](./doc/image/model-diagram.svg)
+  ja: |
+    以下の図は、このモジュールに含まれる各エンティティの内容とそれらの間の関係を表しています。
+    ![](./doc/image/model-diagram.svg)
+  zh: |
+    下面的图表显示了本模块所包含的每个实体的内容以及它们之间的关系。
+    ![](./doc/image/model-diagram.svg)
+
+project:
+  group: '{{project.group}}'
+  name: '{{project.name}}'
+  version: '{{project.version}}'
+  document:
+    sections:
+    - name: overview
+      sub_sections:
+      - name: model-overview
+        title: *title
+        content: *content

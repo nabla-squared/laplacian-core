@@ -1,0 +1,48 @@
+{{define "project_name" (upper-camel project.name) ~}}
+package {{project.namespace}}.plugin
+import org.pf4j.Extension
+import laplacian.generate.ModelEntryResolver
+import laplacian.generate.ExecutionContext
+{{#each entities.top_level_in_namespace as |entity| ~}}
+{{define 'all_entities_container_class_name' (concat 'All' (upper-camel (plural entity.name))) ~}}
+import {{entity.namespace}}.{{all_entities_container_class_name}}
+import {{entity.namespace}}.{{entity.class_name}}Record
+{{/each}}
+import laplacian.generate.util.*
+
+@Extension
+class {{project_name}}ModelEntryResolver: ModelEntryResolver {
+
+    override fun resolves(key: String, model: Map<String, Any?>): Boolean {
+        return arrayOf(
+            {{#each entities.top_level_in_namespace as |entity|}}
+            {{#if entity.singly_rooted}}
+            "{{entity.name}}"{{#unless @last}},{{/unless}}
+            {{else}}
+            "{{plural entity.name}}"{{#unless @last}},{{/unless}}
+            {{/if}}
+            {{/each}}
+        ).any { it == key }
+    }
+
+    override fun resolve(key: String, model: Map<String, Any?>, context: ExecutionContext): Any? {
+        return when (key) {
+            {{#each entities.top_level_in_namespace as |entity|}}
+            {{#if entity.singly_rooted}}
+            "{{entity.name}}" -> model.get("{{entity.name}}").let {
+                {{entity.class_name}}Record(it as Map<String, Any?>, context.currentModel)
+            }
+            {{else}}
+            {{define 'all_entities_container_class_name' (concat 'All' (upper-camel (plural entity.name))) ~}}
+            "{{plural entity.name}}" -> {{all_entities_container_class_name}}(
+                model.getList<Record>("{{plural entity.name}}", emptyList())
+                     .mergeWithKeys({{#each entity.primary_keys as |pk|}}"{{pk.name}}"{{#unless @last}}, {{/unless}}{{/each}})
+                     .let{ {{entity.class_name}}Record.from(it, context.currentModel) },
+                context.currentModel
+            )
+            {{/if}}
+            {{/each}}
+            else -> throw IllegalArgumentException("Unknown key: $key")
+        }
+    }
+}

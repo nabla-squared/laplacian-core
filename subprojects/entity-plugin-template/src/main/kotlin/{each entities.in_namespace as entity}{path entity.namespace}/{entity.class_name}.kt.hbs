@@ -1,0 +1,32 @@
+package {{entity.namespace}}
+{{#each entity.relating_external_entities as |external_entity| ~}}
+import {{external_entity.fqn}}
+{{/each}}
+{{#if entity.supertype ~}}
+import {{entity.supertype.fqn}}
+{{/if}}
+import laplacian.util.*
+
+/**
+ * {{entity.description}}
+ */
+interface {{entity.class_name}} {{#if entity.supertype}}: {{entity.supertype.class_name}} {{/if}}{
+    {{#each entity.properties as |property| ~}}
+    {{#unless property.overwrites ~}}
+    /**
+     * {{property.description}}
+     */
+    val {{property.property_name}}: {{property.class_name}}{{if property.nullable '?'}}
+    {{/unless}}
+    {{/each}}
+    {{#each entity.relationships as |relationship| ~}}
+    /**
+     * {{relationship.description}}
+     */
+    val {{relationship.property_name}}: {{relationship.class_name}}
+    {{/each}}
+    /**
+     * Returns wether this instance is a {{entity.name}} or not.
+     */
+    val isa{{upper-camel entity.class_name}}: Boolean
+}

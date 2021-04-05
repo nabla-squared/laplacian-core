@@ -1,0 +1,183 @@
+{{define "owned_by" entity.owned_by ~}}
+{{define "relating_entities" (unique (map (concat entity.relationships entity.inherited_from) "@it.reference_entity")) ~}}
+package {{entity.namespace}}
+import com.github.jknack.handlebars.Context
+{{#each relating_entities as |relating_entity| ~}}
+{{#neq relating_entity entity ~}}
+import {{relating_entity.fqn}}
+{{#neq entity.namespace relating_entity.namespace ~}}
+import {{relating_entity.fqn}}Record
+{{~/neq}}
+{{~/neq}}
+{{/each}}
+{{#if entity.supertype ~}}
+import {{entity.supertype.fqn}}Record
+{{~/if}}
+{{#each entity.descendants as |subtype| ~}}
+import {{subtype.fqn}}Record
+{{/each}}
+import laplacian.generate.util.*
+  {{#define "class_modifier"}}{{#if entity.subtypes}}open{{else}}data{{/if}}{{/define}}
+/**
+ * {{trim entity.description}}
+ */
+{{class_modifier}} class {{entity.class_name}}Record (
+    private val __record: Record,
+    private val _context: Context,
+    {{#if owned_by}}
+    override val {{owned_by.property_name}}: {{owned_by.class_name}}{{#if owned_by.nullable}} = null{{/if}},
+    {{/if}}
+    private val _record: Record = __record.normalizeCamelcase()
+): {{#if entity.supertype}}{{entity.supertype.class_name}}Record(__record, _context{{#if entity.supertype.ownership}}, {{owned_by.property_name}}{{/if}}), {{/if}}{{entity.class_name}}{{#unless entity.supertype}}, Record by _record{{/unless}} {
+
+    {{#each entity.properties as |property| ~}}
+
+    /**
+     * {{trim property.description}}
+     */
+    {{#if (eq property.type 'any_entity') ~}}
+    override val {{property.property_name}}: {{property.class_name}} by lazy {
+        _record.getList<Map<String, Any?>>("content", emptyList())
+    }
+    {{else}}
+    override val {{property.property_name}}: {{property.class_name}}{{if property.nullable '?'}}
+        {{#if property.snippet ~}}
+        get() = {{shift property.snippet 8}}
+        {{else if property.default_value ~}}
+        get() = getOrThrow("{{property.property_name}}") {
+            {{shift property.default_value 12}}
+        }
+        {{else if property.multiple ~}}
+        get() = getOrThrow("{{property.property_name}}") {
+            empty{{property.class_name}}()
+        }
+        {{else if property.nullable ~}}
+        by _record
+        {{else ~}}
+        get() = getOrThrow("{{property.property_name}}")
+        {{/if}}
+    {{/if}}
+    {{/each}}
+    {{#each entity.relationships as |relationship| ~}}
+    {{#unless relationship.inherited ~}}
+    {{#unless relationship.reverse_of ~}}
+    /**
+     * {{trim relationship.description}}
+     */
+    override val {{relationship.property_name}}: {{relationship.class_name}} by lazy {
+        {{#if relationship.snippet ~}}
+        {{shift relationship.snippet 8}}
+        {{else if relationship.aggregate}}
+        {{#if relationship.multiple ~}}
+        {{relationship.reference_entity.class_name}}Record.from(_record.getList("{{relationship.name}}"{{#if relationship.allows_empty}}, emptyList(){{/if}}), _context{{#if relationship.bidirectional}}, this{{/if}})
+        {{else}}
+        {{#if relationship.nullable ~}}
+        getOrNull<Record>("{{relationship.name}}")?.let{ {{relationship.reference_entity.class_name}}Record.from(it, _context{{#if relationship.bidirectional}}, this{{/if}}) }
+        {{else}}
+        {{relationship.reference_entity.class_name}}Record(getOrThrow<Record>("{{relationship.name}}"), _context{{#if relationship.bidirectional}}, this{{/if}})
+        {{/if}}
+        {{/if}}
+        {{else}}
+        {{relationship.reference_entity.class_name}}Record.from(_context).{{#if relationship.multiple}}filter{{else}}find{{/if}} {
+        {{#each relationship.mappings as |mapping|}}
+            it.{{lower-camel mapping.to}} == {{lower-camel mapping.from}}{{#unless @last}} &&{{/unless}}
+        {{/each}}
+        }{{#unless relationship.allows_empty}}{{#if multiple}}.takeUnless{ it.isEmpty() }{{/if}} ?: throw IllegalStateException(
+            "There is no {{relationship.reference_entity.name}} which meets the following condition(s): "
+        {{#each relationship.mappings as |mapping|}}
+            + "{{entity.class_name}}.{{mapping.from}} == {{relationship.reference_entity.name}}.{{mapping.to}} (=${{lower-camel mapping.from}}) "
+        {{/each}}
+            + "Possible values are: " + {{relationship.reference_entity.class_name}}Record.from(_context).map {
+              "({{#block-join relationship.mappings as |mapping|}}${ it.{{lower-camel mapping.to}} }{{/block-join}})"
+            }.joinToString()
+        ){{/unless}}
+        {{/if}}
+    }
+    {{/unless}}
+    {{/unless}}
+    {{/each}}
+    /**
+     * Returns wether this instance is a {{entity.name}} or not.
+     */
+    override val isa{{upper-camel entity.class_name}}: Boolean = true
+
+    companion object {
+        /**
+         * Creates record list from list of map.
+         */
+        {{#if entity.topLevel ~}}
+        {{define 'all_entities_container_class_name' (concat 'All' (upper-camel (plural entity.name))) ~}}
+        fun from(_context: Context): {{all_entities_container_class_name}} {
+            return _context.get("{{plural entity.name}}") as {{all_entities_container_class_name}}
+        }
+        {{/if}}
+        {{#if owned_by}}
+        fun from(records: RecordList, _context: Context, {{owned_by.property_name}}: {{owned_by.class_name}}{{#if owned_by.nullable}} = null{{/if}}) = records
+            {{#if entity.primary_keys}}
+            .mergeWithKeys({{#each entity.primary_keys as |pk|}}"{{pk.property_name}}"{{#unless @last}}, {{/unless}}{{/each}})
+            {{/if}}
+            .map { from(it, _context, {{owned_by.property_name}} = {{owned_by.property_name}}) }
+
+        fun from(record: Record, _context: Context, {{owned_by.property_name}}: {{owned_by.class_name}}{{#if owned_by.nullable}} = null{{/if}}) =
+            {{#if (and entity.subtypes entity.subtype_key)}}
+            {{define "subtype_key_name" entity.subtype_key.name}}
+            when (val type = record["{{subtype_key_name}}"]) {
+                {{#each entity.descendants as |subtype|}}
+                "{{subtype.subtype_key_value}}" -> {{subtype.class_name}}Record(record, _context, {{owned_by.property_name}} = {{owned_by.property_name}})
+                {{/each}}
+                else -> throw IllegalArgumentException(
+                    "The given record has undefined {{subtype_key_name}} $type. It is should be one of [{{#each entity.descendants as |s|}}{{s.subtype_key_value}}{{#unless @last}}, {{/unless}}{{/each}}]. Record: $record"
+                )
+            }
+            {{else}}
+            {{entity.class_name}}Record(record, _context, {{owned_by.property_name}} = {{owned_by.property_name}})
+            {{/if}}
+        {{else}}
+        fun from(records: RecordList, _context: Context) = records.map { from(it, _context) }
+
+        fun from(record: Record, _context: Context) =
+            {{#if (and entity.subtypes entity.subtype_key)}}
+            {{define "subtype_key_name" entity.subtype_key.name}}
+            when (val type = record["{{subtype_key_name}}"]) {
+                {{#each entity.descendants as |subtype|}}
+                "{{subtype.subtype_key_value}}" -> {{subtype.class_name}}Record(record, _context)
+                {{/each}}
+                else -> throw IllegalArgumentException(
+                    "The given record has undefined {{subtype_key_name}} $type. It is should be one of [{{#each entity.descendants as |s|}}{{s.subtype_key_value}}{{#unless @last}}, {{/unless}}{{/each}}]. Record: $record"
+                )
+            }
+            {{else}}
+            {{entity.class_name}}Record(record, _context)
+            {{/if}}
+        {{/if}}
+    }
+    {{#if entity.primary_keys}}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is {{entity.class_name}}Record) return false
+        {{#each (concat entity.inherited_from entity.primary_keys) as |pk|}}
+        if ({{pk.property_name}} != other.{{pk.property_name}}) return false
+        {{/each}}
+        return true
+    }
+
+    override fun hashCode(): Int {
+        {{#each (concat entity.inherited_from entity.primary_keys) as |pk|}}
+        {{#if @first}}
+        var result = {{pk.property_name}}.hashCode()
+        {{else}}
+        result = 31 * result + {{pk.property_name}}.hashCode()
+        {{/if}}
+        {{/each}}
+        return result
+    }
+
+    override fun toString(): String {
+        return "{{entity.class_name}}Record(" +
+        {{#each (concat entity.inherited_from entity.primary_keys) as |pk|}}
+            "{{pk.property_name}}=${{pk.property_name}}{{#unless @last}}, {{/unless}}" +
+        {{/each}}
+        ")"
+    }
+    {{/if}}
+}

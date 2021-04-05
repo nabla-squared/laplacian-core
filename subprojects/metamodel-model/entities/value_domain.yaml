@@ -1,0 +1,16 @@
+entities:
+- name: value_domain
+  namespace: laplacian.metamodel
+  value_object: true
+  properties:
+  - name: pattern
+    description: Allowed pattern in Regular expression.
+    type: string
+    optional: true
+
+  relationships:
+  - name: choices
+    description: The list of allowed values.
+    cardinality: "*"
+    reference_entity_name: value_item
+    aggregate: true

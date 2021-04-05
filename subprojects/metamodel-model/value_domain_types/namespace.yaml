@@ -1,0 +1,8 @@
+value_domain_types:
+- name: namespace
+  namespace: laplacian.metamodel
+  description: 名前空間
+  type: string
+  domain:
+    pattern: |
+      [_a-zA-Z][_$a-zA-Z0-9]*(\.[_a-zA-Z][_$a-zA-Z0-9]*)*

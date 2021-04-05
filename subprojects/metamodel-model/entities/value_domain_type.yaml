@@ -1,0 +1,28 @@
+entities:
+- name: value_domain_type
+  namespace: laplacian.metamodel
+  properties:
+  - name: name
+    type: string
+    primary_key: true
+
+  - name: namespace
+    type: string
+    domain_type_name: namespace
+    primary_key: true
+
+  - name: type
+    type: string
+    domain_type_name: basic_type
+
+  - name: description
+    type: string
+    optional: true
+    default_value: |
+      name
+
+  relationships:
+  - name: domain
+    cardinality: '1'
+    reference_entity_name: value_domain
+    aggregate: true

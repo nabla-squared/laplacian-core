@@ -1,0 +1,9 @@
+{{define "class_name" (concat (upper-camel project.name) 'Plugin') ~}}
+package {{project.namespace}}.plugin
+
+import org.pf4j.Plugin
+import org.pf4j.PluginWrapper
+
+class {{class_name}} (
+    wrapper: PluginWrapper
+): Plugin(wrapper)

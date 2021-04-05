@@ -1,0 +1,35 @@
+{{define 'class_name' (concat 'All' (upper-camel (plural entity.name))) ~}}
+package {{entity.namespace}}
+import com.github.jknack.handlebars.Context
+{{#each entity.relating_external_entities as |external_entity| ~}}
+import {{external_entity.namespace}}.{{external_entity.class_name}}
+{{/each}}
+import laplacian.util.*
+
+/**
+ * All {{plural entity.name}}.
+ */
+class {{class_name}}(
+    list: List<{{entity.class_name}}>,
+    val context: Context
+) : List<{{entity.class_name}}> by list {
+    {{#each entity.queries as |query|}}
+    /**
+     * {{#if query.description}}{{query.description}}{{else}}{{query.name}}{{/if}}
+     */
+    val {{lower-camel query.name}}: {{query.type}}
+    {{#if query.oneliner}}
+        get() = {{shift query.snippet 12}}
+    {{else}}
+        get() {
+            {{shift query.snippet 12}}
+        }
+    {{/if}}
+    {{/each}}
+    {{#if entity.supportsNamespace}}
+    val inNamespace: List<{{entity.class_name}}>
+        get() = filter {
+            it.namespace.startsWith(context.get("project.namespace") as String)
+        }
+    {{/if}}
+}

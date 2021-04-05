@@ -1,0 +1,53 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+    id 'maven-publish'
+    id 'jacoco'
+}
+
+group = 'laplacian-core'
+version = '1.0.0'
+
+repositories {
+    maven {
+        url 'https://raw.github.com/nabla-squared/maven-repo/main/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'laplacian:laplacian-generator-api:1.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "$kotlinJvmTarget"
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Plugin-Class': 'laplacian.metamodel.plugin.MetamodelPlugin',
+            'Plugin-Dependencies': '',
+            'Plugin-Id': 'laplacian-metamodel-plugin',
+            'Plugin-Version': '1.0.0',
+        )
+    }
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}

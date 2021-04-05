@@ -1,0 +1,17 @@
+value_domain_types:
+- name: basic_type
+  namespace: laplacian.metamodel
+  description: basic scalar type
+  type: string
+  domain:
+    choices:
+    - value: string
+    - value: boolean
+    - value: number
+    - value: int
+    - value: float
+    - value: double
+    - value: date
+    - value: time
+    - value: datetime
+    - value: any_entity

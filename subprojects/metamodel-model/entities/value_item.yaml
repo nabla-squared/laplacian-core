@@ -1,0 +1,19 @@
+entities:
+- name: value_item
+  namespace: laplacian.metamodel
+  value_object: true
+  properties:
+  - name: value
+    type: string
+
+  - name: label
+    type: string
+    optional: true
+    default_value: |
+      value
+
+  - name: description
+    type: string
+    optional: true
+    default_value: |
+      "label (=$value)"

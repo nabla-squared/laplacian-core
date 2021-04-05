@@ -1,0 +1,10 @@
+project:
+  group: laplacian-core
+  name: metamodel
+  type: model
+  namespace: laplacian.metamodel
+  version: '1.0.0'
+  description:
+    en: |
+      This model is a model for defining a model, i.e. a metamodel.
+      In this model, you can define a model with the following structure

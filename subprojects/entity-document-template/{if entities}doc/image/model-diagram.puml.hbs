@@ -1,0 +1,40 @@
+{{define "base_url" (concat project.repository '/blob/master') ~}}
+{{define "base_raw_url" 'https://raw.githubusercontent.com/nabla-squared/' ~}}
+@startuml
+left to right direction
+{{#each entities.in_namespace as |entity|}}
+{{define "entity_doc_url" (concat base_url '/doc/entities/' entity.class_name '.md') ~}}
+class {{entity.fqn}} [[{{entity_doc_url}}]] {
+  {{#each entity.properties as |property|}}
+  {{define "property_url" (concat entity_doc_url '#' property.name '-' (lower-camel property.class_name)) ~}}
+  {{define "attribute" (case
+    property.primary_key '<color:RED><&key></color>'
+    property.subtype_key '<color:RED><&flag></color>'
+    property.overwrites '<color:GREEN><&arrow-thick-top></color>'
+    (and (not property.optional) (not property.snippet) (not property.default_value)) '<color:Green><&star></color>'
+  ) ~}}
+  {{attribute~}}{{if property.deprecated '<s:RED>'}}{{if property.snippet
+    (concat '[[' property_url ' ' (lower-camel property.identifier) ']]()')
+    (concat '[[' property_url ' ' property.identifier ']]')
+  ~}}{{if property.deprecated '</s>' ~}}: <color:GRAY>{{property.class-name}}{{if property.nullable '?' ~}}</color>
+  {{/each}}
+  {{#each entity.relationships as |relationship|}}
+  {{#if relationship.snippet}}
+  {{#define "relationship_url"}}{{entity_doc_url}}#{{relationship.name}}-{{lower-camel relationship.class_name}}{{/define}}
+  {{#if relationship.deprecated}}<s:RED>{{/if}}[[{{relationship_url}} {{relationship.property_name}}]](){{#if relationship.deprecated}}</s>{{/if}}: <color:GRAY>{{relationship.class_name}}</color>
+  {{/if}}
+  {{/each}}
+}
+{{#if entity.supertype}}
+{{entity.fqn}} --|> {{entity.supertype.fqn}}
+{{/if}}
+{{#each entity.stored_relationships as |relationship|}}
+{{define "ref-entity" relationship.reference-entity}}
+{{#if relationship.aggregate}}
+{{entity.fqn}} *-- "{{relationship.cardinality}}" {{ref-entity.fqn}} : {{relationship.name}}
+{{else}}
+{{entity.fqn}} -- "{{relationship.cardinality}}" {{ref-entity.fqn}} : {{relationship.name}}
+{{/if}}
+{{/each}}
+{{/each}}
+@enduml
