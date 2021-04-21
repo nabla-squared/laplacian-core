@@ -4,4 +4,4 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = '{{project.group}}.{{project.name}}-entity-plugin'
+rootProject.name = 'laplacian-core.metamodel-plugin'

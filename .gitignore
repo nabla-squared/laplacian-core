@@ -1,1 +1,15 @@
 dist/
+build/
+out/
+.gradle/
+.idea
+*.log
+*.iml
+*.swp
+.DS_Store
+target/
+.project
+.classpath
+bin/
+.settings/
+.vscode/

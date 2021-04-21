@@ -4,8 +4,8 @@ plugins {
     id 'jacoco'
 }
 
-group = '{{project.group}}'
-version = '{{project.version}}'
+group = 'laplacian-core'
+version = '1.0.0'
 
 repositories {
     maven {
@@ -14,10 +14,13 @@ repositories {
     mavenCentral()
 }
 
+def cacheDir = "${System.getenv('HOME')}/.laplacian/cache"
+
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'laplacian:laplacian-generator-api:1.0.0'
+    implementation files("$cacheDir/laplacian-core.metamodel-plugin-1.0.0.jar")
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
 }
@@ -27,14 +30,13 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         jvmTarget = "$kotlinJvmTarget"
     }
 }
-
 jar {
     manifest {
         attributes(
-            'Plugin-Class': '{{project.namespace}}.plugin.{{upper-camel project.name}}Plugin',
+            'Plugin-Class': 'laplacian.metamodel.plugin.MetamodelPlugin',
             'Plugin-Dependencies': '',
-            'Plugin-Id': '{{hyphen project.namespace}}-plugin',
-            'Plugin-Version': '{{project.version}}',
+            'Plugin-Id': 'laplacian-core.metamodel-plugin',
+            'Plugin-Version': '1.0.0',
         )
     }
 }
