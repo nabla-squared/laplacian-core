@@ -1,0 +1,156 @@
+{{#*inline "PROPERTY_DEFINITION" ~}}
+          "{{lower-snake property.name}}": {
+            {{#if property.multiple ~}}
+            "type": "array",
+            "items": {
+            {{/if}}
+            {{#if (eq property.type 'any_entity') ~}}
+            "$ref": "#/definitions/entities/AnyEntity",
+            {{/if}}
+            {{#if property.domain_type}}
+            "allOf": [{
+            {{/if}}
+            "description": {{json (trim property.description)}},
+            {{#if property.domain}}
+            {{#if property.domain.pattern}}
+            "pattern": {{dquote (concat '^' (trim property.domain.pattern) '$')}},
+            {{/if}}
+            {{#if property.domain.choices ~}}
+            "enum":[
+              {{#each property.domain.choices as |item|}}
+              "{{trim item.value}}"{{#unless @last}},{{/unless}}
+              {{/each}}
+            ],
+            {{/if}}
+            {{/if}}
+            {{#if property.subtype_key ~}}
+            "enum":[
+              {{#each property.entity.descendants as |subtype|}}
+              "{{trim subtype.subtype_key_value}}"{{#unless @last}},{{/unless}}
+              {{/each}}
+            ],
+            {{/if}}
+            "type": "{{if (eq property.type "any_entity") "object" property.type}}"
+            {{#if property.domain_type}}
+            }, {
+            "$ref": "#/definitions/value_domain_types/{{lower-snake property.domain_type.name}}"
+            }]
+            {{/if}}
+            {{#if property.multiple ~}}
+            }
+            {{/if}}
+          }
+{{~/inline}}
+
+{{#*inline "ENTITY_DEFINITION" ~}}
+      "{{entity.fqn}}": {
+        "description": {{json (trim entity.description)}},
+        {{#unless entity.supertype}}
+        "type": "object",
+        {{else}}
+        "if": { "properties": {
+          "{{lower-snake entity.root.subtype_key.name}}": { "const": {{json entity.subtype_key_value}} }
+        }},
+        "then": {
+        {{/unless}}
+        "required": [
+          {{#unless (eq mode 'singleton') ~}}
+          {{define 'required_prop_names' (concat
+            (map (filter entity.stored_properties '(not @it.optional)') '@it.name')
+            (map (filter entity.aggregates '(not @it.allows_empty)') '@it.name')
+          ) ~}}
+          {{#each required_prop_names as |name| ~}}
+          "{{lower-snake name}}"{{#unless @last}},{{/unless}}
+          {{/each}}
+          {{/unless}}
+        ],
+        {{#unless entity.subtypes ~}}
+        "additionalProperties": false,
+        {{/unless}}
+        "properties": {
+          "_class_": { "const": "{{entity.name}}" },
+          {{#each (filter entity.all_properties "(not @it.snippet)") as |property| ~}}
+          {{>PROPERTY_DEFINITION entity=entity property=property }}{{#if (or (not @last) entity.all_aggregates)}},{{/if}}
+          {{/each}}
+          {{#each entity.all_aggregates as |aggregate| ~}}
+          "{{lower-snake aggregate.name}}": {
+            "description": {{json (trim aggregate.description)}},
+            {{#if aggregate.multiple}}
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/entities/{{aggregate.reference_entity.fqn}}"
+            }
+            {{else}}
+            "$ref": "#/definitions/entities/{{aggregate.reference_entity.fqn}}"
+            {{/if}}
+          }{{#unless @last}},{{/unless}}
+          {{/each}}
+        }{{#if entity.subtypes}},
+        "allOf": [
+          {{#each entity.descendants as |subtype| ~}}
+          { "$ref": "#/definitions/entities/{{subtype.fqn}}" }{{#unless @last}},{{/unless}}
+          {{/each}}
+        ]
+        {{/if}}
+        {{#if entity.supertype ~}}
+        }
+        {{/if}}
+      }
+{{~/inline}}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Domain model definition for the {{project.name}} project.",
+  "description": "Domain model definition for the {{project.name}} project.",
+  "type": "object",
+  "required": [],
+  "properties": {
+    {{#each entities.top_level as |entity|}}
+    {{#if entity.singly_rooted ~}}
+    {{> ENTITY_DEFINITION entity=entity mode='singleton' }}
+    {{else}}
+    "{{lower-snake (plural entity.name)}}": {
+      "description": {{json (trim entity.description)}},
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/entities/{{entity.fqn}}"
+      }
+    }
+    {{/if}}
+    {{~#unless @last}},{{/unless}}
+    {{/each}}
+  },
+  "definitions": {
+    "value_domain_types": {
+      {{#each value_domain_types as |type|}}
+      "{{lower-snake type.name}}": {
+        "description": {{json (trim type.description)}},
+        {{#if type.domain.pattern}}
+        "pattern": {{dquote (concat '^' (trim type.domain.pattern) '$')}},
+        {{/if}}
+        {{#if type.domain.choices}}
+        "enum":[
+           {{#each type.domain.choices as |item|}}
+           "{{trim item.value}}"{{if (not @last) ','}}
+           {{/each}}
+        ],
+        {{/if}}
+        "type": "{{type.type}}"
+      }{{#unless @last}},{{/unless}}
+      {{/each}}
+    },
+    "entities": {
+      {{#each entities as |entity| ~}}
+      {{> ENTITY_DEFINITION entity=entity}},
+      {{/each}}
+      "AnyEntity": {
+        "type": "object",
+        "allOf": [{
+        {{#each entities.top_level as |entity| ~}}
+          "if": { "properties": { "_class_": { "const": "{{entity.name}}" } }},
+          "then": { "$ref": "#/definitions/entities/{{entity.fqn}}" }
+        {{if @last '}]' '}, {'}}
+        {{/each}}
+      }
+    }
+  }
+}
