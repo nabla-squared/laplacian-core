@@ -1,8 +1,8 @@
 {
   "yaml.schemas": {
-    "./schema/model-schema.json": [
-      "subprojects/metamodel-model/**/*.yaml",
-      "subprojects/metamodel-model/*.yaml"
+    "./subprojects/metamodel-model/schema/model-schema.json": [
+      "subprojects/metamodel-model/model/**/*.yaml",
+      "subprojects/metamodel-model/model/*.yaml"
     ]
   }
 }
