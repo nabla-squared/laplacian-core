@@ -5,6 +5,7 @@ entities:
   - name: name
     type: string
     primary_key: true
+    domain_type_name: identifier
 
   - name: identifier
     optional: true

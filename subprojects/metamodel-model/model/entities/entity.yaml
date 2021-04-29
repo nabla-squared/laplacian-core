@@ -6,6 +6,7 @@ entities:
   - name: name
     primary_key: true
     type: string
+    domain_type_name: identifier
     example_values:
     - party
     - person

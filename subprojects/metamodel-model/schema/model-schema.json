@@ -65,8 +65,12 @@
         "properties": {
           "_class_": { "const": "entity" },
           "name": {
+            "allOf": [{
             "description": "The name of this entity.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "namespace": {
             "allOf": [{
@@ -161,8 +165,12 @@
         "properties": {
           "_class_": { "const": "property" },
           "name": {
+            "allOf": [{
             "description": "The name of this property.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "identifier": {
             "allOf": [{
