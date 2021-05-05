@@ -5,6 +5,7 @@ entities:
   - name: name
     type: string
     primary_key: true
+    domain_type_name: identifier
 
   - name: identifier
     optional: true
@@ -32,6 +33,7 @@ entities:
 
   - name: reference_entity_name
     type: string
+    domain_type_name: identifier
 
   - name: reference_entity_namespace
     type: string

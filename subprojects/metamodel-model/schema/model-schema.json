@@ -109,16 +109,28 @@
             "type": "string"
           },
           "supertype_name": {
+            "allOf": [{
             "description": "The supertype_name of this entity.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "supertype_namespace": {
+            "allOf": [{
             "description": "The supertype_namespace of this entity.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/namespace"
+            }]
           },
           "subtype_key_value": {
+            "allOf": [{
             "description": "The value of subtype key that represents this type of entity,\nwhich is used when implementing polymorphism. The name of entity is used by default.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "deprecated": {
             "description": "Defines this entity is deprecated or not.",
@@ -329,8 +341,12 @@
         "properties": {
           "_class_": { "const": "relationship" },
           "name": {
+            "allOf": [{
             "description": "The name of this relationship.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "identifier": {
             "allOf": [{
@@ -351,8 +367,12 @@
             "type": "string"
           },
           "reference_entity_name": {
+            "allOf": [{
             "description": "The reference_entity_name of this relationship.",
             "type": "string"
+            }, {
+            "$ref": "#/definitions/value_domain_types/identifier"
+            }]
           },
           "reference_entity_namespace": {
             "description": "The reference_entity_namespace of this relationship.",

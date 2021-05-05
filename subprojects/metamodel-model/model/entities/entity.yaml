@@ -61,12 +61,14 @@ entities:
   - name: supertype_name
     type: string
     optional: true
+    domain_type_name: identifier
 
   - name: supertype_namespace
     type: string
     optional: true
     default_value: |
       namespace
+    domain_type_name: namespace
 
   - name: subtype_key_value
     type: string
@@ -76,6 +78,7 @@ entities:
       which is used when implementing polymorphism. The name of entity is used by default.
     default_value: |
       name
+    domain_type_name: identifier
     example_values:
     - party
     - person
