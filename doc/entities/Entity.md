@@ -112,6 +112,9 @@ The name of this entity.
 The namespace of this entity.
 - **Attributes:** *PK*
 
+### tags: `List<String>`
+The tags of this entity.
+
 ### identifier: `String`
 The identifier of this entity.
 - **Default Value:**

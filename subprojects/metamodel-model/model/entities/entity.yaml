@@ -17,6 +17,11 @@ entities:
     primary_key: true
     domain_type_name: namespace
 
+  - name: tags
+    type: string
+    optional: true
+    multiple: true
+
   - name: identifier
     type: string
     domain_type_name: identifier

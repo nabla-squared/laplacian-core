@@ -49,6 +49,10 @@ interface Property {
      */
     val defaultValue: String?
     /**
+     * The tags of this property.
+     */
+    val tags: List<String>
+    /**
      * Kotlin expressions which represent some typical values of this property.
 
      */

@@ -80,6 +80,13 @@
             "$ref": "#/definitions/value_domain_types/namespace"
             }]
           },
+          "tags": {
+            "type": "array",
+            "items": {
+            "description": "The tags of this entity.",
+            "type": "string"
+            }
+          },
           "identifier": {
             "allOf": [{
             "description": "The identifier of this entity.",
@@ -227,6 +234,13 @@
           "default_value": {
             "description": "The default value of this property, which is used when the actual value is null",
             "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+            "description": "The tags of this property.",
+            "type": "string"
+            }
           },
           "example_values": {
             "type": "array",

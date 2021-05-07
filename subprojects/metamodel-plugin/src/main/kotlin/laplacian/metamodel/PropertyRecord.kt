@@ -86,6 +86,13 @@ data class PropertyRecord (
     override val defaultValue: String?
         by _record
     /**
+     * The tags of this property.
+     */
+    override val tags: List<String>
+        get() = getOrThrow("tags") {
+            emptyList<String>()
+        }
+    /**
      * Kotlin expressions which represent some typical values of this property.
      */
     override val exampleValues: List<String>

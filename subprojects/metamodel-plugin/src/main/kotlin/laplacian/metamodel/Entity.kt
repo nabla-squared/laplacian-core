@@ -16,6 +16,10 @@ interface Entity {
      */
     val namespace: String
     /**
+     * The tags of this entity.
+     */
+    val tags: List<String>
+    /**
      * The identifier of this entity.
      */
     val identifier: String

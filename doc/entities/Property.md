@@ -70,6 +70,9 @@ The description of this property.
 The default value of this property, which is used when the actual value is null
 
 
+### tags: `List<String>`
+The tags of this property.
+
 ### example_values: `List<String>`
 Kotlin expressions which represent some typical values of this property.
 

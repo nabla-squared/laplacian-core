@@ -31,6 +31,13 @@ data class EntityRecord (
     override val namespace: String
         get() = getOrThrow("namespace")
     /**
+     * The tags of this entity.
+     */
+    override val tags: List<String>
+        get() = getOrThrow("tags") {
+            emptyList<String>()
+        }
+    /**
      * The identifier of this entity.
      */
     override val identifier: String

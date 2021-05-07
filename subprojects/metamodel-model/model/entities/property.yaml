@@ -63,6 +63,11 @@ entities:
     type: string
     optional: true
 
+  - name: tags
+    type: string
+    optional: true
+    multiple: true
+
   - name: example_values
     description: |
       Kotlin expressions which represent some typical values of this property.
