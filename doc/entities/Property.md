@@ -135,6 +135,28 @@ The class_name of this property.
   }
   ```
 
+### class_name_in_kotlin: `String`
+The class_name_in_kotlin of this property.
+- **Code:**
+  ```kotlin
+  className
+  ```
+
+### class_name_in_java: `String`
+The class_name_in_java of this property.
+- **Code:**
+  ```kotlin
+  when(type) {
+      "number", "int" -> "Integer"
+      "date", "datetime", "time" -> "String"
+      "any_entity" -> "Object"
+      else -> type.upperCamelize()
+  }
+  .let {
+      if (multiple) "List<$it>" else it
+  }
+  ```
+
 ### nullable: `Boolean`
 Whether this property permits a null value
 

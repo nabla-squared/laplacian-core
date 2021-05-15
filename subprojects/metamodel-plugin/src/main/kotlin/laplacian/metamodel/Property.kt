@@ -83,6 +83,14 @@ interface Property {
      */
     val className: String
     /**
+     * The class_name_in_kotlin of this property.
+     */
+    val classNameInKotlin: String
+    /**
+     * The class_name_in_java of this property.
+     */
+    val classNameInJava: String
+    /**
      * Whether this property permits a null value
 
      */

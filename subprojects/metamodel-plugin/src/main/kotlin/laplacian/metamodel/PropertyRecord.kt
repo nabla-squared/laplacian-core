@@ -149,6 +149,24 @@ data class PropertyRecord (
             if (multiple) "List<$it>" else it
         }
     /**
+     * The class_name_in_kotlin of this property.
+     */
+    override val classNameInKotlin: String
+        get() = className
+    /**
+     * The class_name_in_java of this property.
+     */
+    override val classNameInJava: String
+        get() = when(type) {
+            "number", "int" -> "Integer"
+            "date", "datetime", "time" -> "String"
+            "any_entity" -> "Object"
+            else -> type.upperCamelize()
+        }
+        .let {
+            if (multiple) "List<$it>" else it
+        }
+    /**
      * Whether this property permits a null value
      */
     override val nullable: Boolean

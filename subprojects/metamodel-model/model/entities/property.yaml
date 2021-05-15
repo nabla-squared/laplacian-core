@@ -125,6 +125,24 @@ entities:
           if (multiple) "List<$it>" else it
       }
 
+  - name: class_name_in_kotlin
+    type: string
+    snippet: |
+      className
+
+  - name: class_name_in_java
+    type: string
+    snippet: |
+      when(type) {
+          "number", "int" -> "Integer"
+          "date", "datetime", "time" -> "String"
+          "any_entity" -> "Object"
+          else -> type.upperCamelize()
+      }
+      .let {
+          if (multiple) "List<$it>" else it
+      }
+
   - name: nullable
     type: boolean
     description: |
