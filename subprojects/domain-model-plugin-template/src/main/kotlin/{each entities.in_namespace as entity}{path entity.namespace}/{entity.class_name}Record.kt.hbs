@@ -37,7 +37,11 @@ import laplacian.generate.util.*
      */
     {{#if (eq property.type 'any_entity') ~}}
     override val {{property.property_name}}: {{property.class_name}} by lazy {
-        _record.getList<Map<String, Any?>>("content", emptyList())
+        {{#if property.multiple ~}}
+        _record.getList<Map<String, Any?>>("{{property.property_name}}", emptyList())
+        {{else}}
+        _record.getOrThrow("{{property.property_name}}")
+        {{/if}}
     }
     {{else}}
     override val {{property.property_name}}: {{property.class_name}}{{if property.nullable '?'}}

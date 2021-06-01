@@ -1,6 +1,5 @@
 # Laplacian Core
 
-<!-- @model_overview@ -->
 ### Model overview
 
 The following diagram explains the entities included in this module.
@@ -25,5 +24,4 @@ An entity describing a value_domain_type.
 - [**ValueItem**](<./doc/entities/ValueItem.md>)
 An entity describing a value_item.
 
-
-<!-- @model_overview@ -->
+ -->
