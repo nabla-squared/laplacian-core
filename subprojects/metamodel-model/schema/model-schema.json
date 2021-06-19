@@ -526,6 +526,9 @@
         }, {
         "if": { "properties": { "_class_": { "const": "value_domain_type" } }},
           "then": { "$ref": "#/definitions/entities/laplacian.metamodel.ValueDomainType" }
+        }, {
+          "if": { "properties": { "_class_": {"type": "string"} }},
+          "else": { "additional_properties": true }
         }]
       }
     }

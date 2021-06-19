@@ -148,8 +148,11 @@
         {{#each entities.top_level as |entity| ~}}
           "if": { "properties": { "_class_": { "const": "{{entity.name}}" } }},
           "then": { "$ref": "#/definitions/entities/{{entity.fqn}}" }
-        {{if @last '}]' '}, {'}}
+        }, {
         {{/each}}
+          "if": { "properties": { "_class_": {"type": "string"} }},
+          "else": { "additional_properties": true }
+        }]
       }
     }
   }
