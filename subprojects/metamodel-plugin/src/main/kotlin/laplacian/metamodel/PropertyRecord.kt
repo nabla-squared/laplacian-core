@@ -160,6 +160,7 @@ data class PropertyRecord (
         get() = when(type) {
             "number", "int" -> "Integer"
             "date", "datetime", "time" -> "String"
+            "float", "double" -> "BigDecimal"
             "any_entity" -> "Object"
             else -> type.upperCamelize()
         }

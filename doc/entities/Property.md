@@ -149,6 +149,7 @@ The class_name_in_java of this property.
   when(type) {
       "number", "int" -> "Integer"
       "date", "datetime", "time" -> "String"
+      "float", "double" -> "BigDecimal"
       "any_entity" -> "Object"
       else -> type.upperCamelize()
   }
